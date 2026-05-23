@@ -5,407 +5,65 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Farrukhabad Nagarpalika — Complaint Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Tiro+Devanagari+Hindi&family=DM+Mono:wght@400;500&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,300&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
-  :root {
-    --bg: #0d0f0e;
-    --surface: #161a18;
-    --surface2: #1e2420;
-    --border: #2a3330;
-    --text: #e8ede9;
-    --text-dim: #7a8f83;
-    --accent: #4ade80;
-    --accent-dim: #166534;
-
-    --naali: #60a5fa;
-    --sadak: #f97316;
-    --gandagi: #a78bfa;
-    --paani: #22d3ee;
-    --light: #fbbf24;
-    --cert: #f472b6;
-    --other: #94a3b8;
-    --urgent: #ef4444;
-    --priority: #fb923c;
-  }
-
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'DM Mono', monospace;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-  }
-
-  /* HEADER */
-  header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 12px 24px;
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    flex-shrink: 0;
-    z-index: 1000;
-  }
-
-  .header-left {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-  }
-
-  .logo-dot {
-    width: 10px; height: 10px;
-    background: var(--accent);
-    border-radius: 50%;
-    animation: pulse 2s infinite;
-  }
-
-  @keyframes pulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.5; transform: scale(1.3); }
-  }
-
-  .header-title {
-    font-family: 'Fraunces', serif;
-    font-size: 18px;
-    font-weight: 600;
-    color: var(--text);
-    letter-spacing: -0.3px;
-  }
-
-  .header-sub {
-    font-size: 11px;
-    color: var(--text-dim);
-    margin-top: 1px;
-  }
-
-  .live-badge {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    background: var(--accent-dim);
-    border: 1px solid var(--accent);
-    padding: 4px 10px;
-    border-radius: 4px;
-    font-size: 11px;
-    color: var(--accent);
-    letter-spacing: 1px;
-  }
-
-  /* MAIN LAYOUT */
-  .main {
-    display: flex;
-    flex: 1;
-    overflow: hidden;
-  }
-
-  /* SIDEBAR */
-  .sidebar {
-    width: 300px;
-    background: var(--surface);
-    border-right: 1px solid var(--border);
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    flex-shrink: 0;
-  }
-
-  .sidebar-section {
-    padding: 16px;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .section-label {
-    font-size: 10px;
-    color: var(--text-dim);
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    margin-bottom: 12px;
-  }
-
-  /* STAT CARDS */
-  .stats-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-  }
-
-  .stat-card {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 10px 12px;
-  }
-
-  .stat-number {
-    font-family: 'Fraunces', serif;
-    font-size: 28px;
-    font-weight: 600;
-    line-height: 1;
-    color: var(--text);
-  }
-
-  .stat-label {
-    font-size: 10px;
-    color: var(--text-dim);
-    margin-top: 4px;
-    letter-spacing: 0.5px;
-  }
-
-  .stat-card.urgent .stat-number { color: var(--urgent); }
-  .stat-card.priority .stat-number { color: var(--priority); }
-
-  /* FILTERS */
-  .filter-list {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-
-  .filter-btn {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 8px 10px;
-    background: transparent;
-    border: 1px solid transparent;
-    border-radius: 5px;
-    cursor: pointer;
-    color: var(--text);
-    font-family: 'DM Mono', monospace;
-    font-size: 12px;
-    transition: all 0.15s;
-    width: 100%;
-    text-align: left;
-  }
-
-  .filter-btn:hover { background: var(--surface2); border-color: var(--border); }
-  .filter-btn.active { background: var(--surface2); border-color: var(--border); }
-
-  .filter-dot {
-    width: 10px; height: 10px;
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
-
-  .filter-count {
-    margin-left: auto;
-    font-size: 11px;
-    color: var(--text-dim);
-    background: var(--bg);
-    padding: 1px 6px;
-    border-radius: 3px;
-  }
-
-  /* COMPLAINT LIST */
-  .complaint-list {
-    flex: 1;
-    overflow-y: auto;
-    padding: 8px;
-  }
-
-  .complaint-list::-webkit-scrollbar { width: 4px; }
-  .complaint-list::-webkit-scrollbar-track { background: transparent; }
-  .complaint-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
-
-  .complaint-item {
-    padding: 10px 12px;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    margin-bottom: 6px;
-    cursor: pointer;
-    transition: all 0.15s;
-    background: var(--surface2);
-  }
-
-  .complaint-item:hover {
-    border-color: var(--accent);
-    transform: translateX(2px);
-  }
-
-  .complaint-item-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 4px;
-  }
-
-  .complaint-name {
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--text);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 160px;
-  }
-
-  .complaint-type-badge {
-    font-size: 9px;
-    padding: 2px 6px;
-    border-radius: 3px;
-    letter-spacing: 0.5px;
-    flex-shrink: 0;
-  }
-
-  .complaint-mohalla {
-    font-size: 11px;
-    color: var(--text-dim);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .complaint-meta {
-    font-size: 10px;
-    color: var(--text-dim);
-    margin-top: 3px;
-    display: flex;
-    gap: 8px;
-  }
-
-  /* MAP */
-  #map {
-    flex: 1;
-    background: var(--bg);
-  }
-
-  /* LEAFLET CUSTOM */
-  .leaflet-container {
-    background: #0d1a14 !important;
-    font-family: 'DM Mono', monospace;
-  }
-
-  .custom-popup .leaflet-popup-content-wrapper {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    color: var(--text);
-    font-family: 'DM Mono', monospace;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.6);
-    padding: 0;
-  }
-
-  .custom-popup .leaflet-popup-tip {
-    background: var(--surface);
-  }
-
-  .custom-popup .leaflet-popup-content {
-    margin: 0;
-    min-width: 260px;
-  }
-
-  .popup-header {
-    padding: 12px 16px 10px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .popup-type-dot {
-    width: 10px; height: 10px;
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
-
-  .popup-name {
-    font-family: 'Fraunces', serif;
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--text);
-  }
-
-  .popup-body {
-    padding: 12px 16px;
-  }
-
-  .popup-row {
-    display: flex;
-    margin-bottom: 8px;
-    font-size: 12px;
-    line-height: 1.5;
-  }
-
-  .popup-label {
-    color: var(--text-dim);
-    width: 80px;
-    flex-shrink: 0;
-    font-size: 10px;
-    letter-spacing: 0.5px;
-    padding-top: 1px;
-  }
-
-  .popup-value {
-    color: var(--text);
-    flex: 1;
-  }
-
-  .urgency-tag {
-    display: inline-block;
-    font-size: 9px;
-    padding: 2px 6px;
-    border-radius: 3px;
-    letter-spacing: 1px;
-    margin-bottom: 8px;
-  }
-
-  .urgency-urgent {
-    background: rgba(239,68,68,0.2);
-    border: 1px solid var(--urgent);
-    color: var(--urgent);
-  }
-
-  .urgency-priority {
-    background: rgba(251,146,60,0.2);
-    border: 1px solid var(--priority);
-    color: var(--priority);
-  }
-
-  /* CUSTOM MARKERS */
-  .custom-marker {
-    width: 28px;
-    height: 28px;
-    border-radius: 50% 50% 50% 0;
-    transform: rotate(-45deg);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 2px solid rgba(255,255,255,0.2);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.4);
-  }
-
-  .marker-inner {
-    transform: rotate(45deg);
-    font-size: 12px;
-    line-height: 1;
-  }
-
-  .leaflet-tile {
-    filter: brightness(0.6) saturate(0.4) hue-rotate(120deg);
-  }
-
-  /* WARD LABELS */
-  .ward-label {
-    background: transparent !important;
-    border: none !important;
-    font-size: 10px;
-    color: rgba(100,150,120,0.7);
-    font-family: 'DM Mono', monospace;
-    white-space: nowrap;
-    letter-spacing: 1px;
-  }
+:root{--bg:#0d0f0e;--surface:#161a18;--surface2:#1e2420;--border:#2a3330;--text:#e8ede9;--text-dim:#7a8f83;--accent:#4ade80;--accent-dim:#166534;--urgent:#ef4444;--priority:#fb923c}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'DM Mono',monospace;height:100vh;display:flex;flex-direction:column;overflow:hidden}
+header{display:flex;align-items:center;justify-content:space-between;padding:12px 24px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0;z-index:1000}
+.header-left{display:flex;align-items:center;gap:16px}
+.logo-dot{width:10px;height:10px;background:var(--accent);border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.3)}}
+.header-title{font-family:'Fraunces',serif;font-size:18px;font-weight:600;letter-spacing:-.3px}
+.header-sub{font-size:11px;color:var(--text-dim);margin-top:1px}
+.live-badge{display:flex;align-items:center;gap:6px;background:var(--accent-dim);border:1px solid var(--accent);padding:4px 10px;border-radius:4px;font-size:11px;color:var(--accent);letter-spacing:1px}
+.main{display:flex;flex:1;overflow:hidden}
+.sidebar{width:300px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;flex-shrink:0}
+.sidebar-section{padding:16px;border-bottom:1px solid var(--border)}
+.section-label{font-size:10px;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:12px}
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.stat-card{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:10px 12px}
+.stat-number{font-family:'Fraunces',serif;font-size:28px;font-weight:600;line-height:1}
+.stat-label{font-size:10px;color:var(--text-dim);margin-top:4px}
+.stat-card.urgent .stat-number{color:var(--urgent)}
+.stat-card.priority .stat-number{color:var(--priority)}
+.filter-list{display:flex;flex-direction:column;gap:4px}
+.filter-btn{display:flex;align-items:center;gap:10px;padding:8px 10px;background:transparent;border:1px solid transparent;border-radius:5px;cursor:pointer;color:var(--text);font-family:'DM Mono',monospace;font-size:12px;transition:all .15s;width:100%;text-align:left}
+.filter-btn:hover,.filter-btn.active{background:var(--surface2);border-color:var(--border)}
+.filter-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.filter-count{margin-left:auto;font-size:11px;color:var(--text-dim);background:var(--bg);padding:1px 6px;border-radius:3px}
+.complaint-list{flex:1;overflow-y:auto;padding:8px}
+.complaint-list::-webkit-scrollbar{width:4px}
+.complaint-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.complaint-item{padding:10px 12px;border:1px solid var(--border);border-radius:6px;margin-bottom:6px;cursor:pointer;transition:all .15s;background:var(--surface2)}
+.complaint-item:hover{border-color:var(--accent);transform:translateX(2px)}
+.complaint-item-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+.complaint-name{font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px}
+.complaint-type-badge{font-size:9px;padding:2px 6px;border-radius:3px;letter-spacing:.5px;flex-shrink:0}
+.complaint-mohalla{font-size:11px;color:var(--text-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.complaint-meta{font-size:10px;color:var(--text-dim);margin-top:3px}
+#map{flex:1;background:var(--bg)}
+.leaflet-container{background:#0d1a14!important}
+.custom-popup .leaflet-popup-content-wrapper{background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'DM Mono',monospace;box-shadow:0 8px 32px rgba(0,0,0,.6);padding:0}
+.custom-popup .leaflet-popup-tip{background:var(--surface)}
+.custom-popup .leaflet-popup-content{margin:0;min-width:260px}
+.popup-header{padding:12px 16px 10px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.popup-type-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.popup-name{font-family:'Fraunces',serif;font-size:15px;font-weight:600}
+.popup-body{padding:12px 16px}
+.popup-row{display:flex;margin-bottom:8px;font-size:12px;line-height:1.5}
+.popup-label{color:var(--text-dim);width:80px;flex-shrink:0;font-size:10px;letter-spacing:.5px;padding-top:1px}
+.popup-value{color:var(--text);flex:1}
+.urgency-tag{display:inline-block;font-size:9px;padding:2px 6px;border-radius:3px;letter-spacing:1px;margin-bottom:8px}
+.urgency-urgent{background:rgba(239,68,68,.2);border:1px solid var(--urgent);color:var(--urgent)}
+.urgency-priority{background:rgba(251,146,60,.2);border:1px solid var(--priority);color:var(--priority)}
+.leaflet-tile{filter:brightness(.6) saturate(.4) hue-rotate(120deg)}
+@keyframes urgentPulse{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.6)}50%{box-shadow:0 0 0 8px rgba(239,68,68,0)}}
 </style>
 </head>
 <body>
-
 <header>
   <div class="header-left">
     <div class="logo-dot"></div>
@@ -414,368 +72,54 @@
       <div class="header-sub">Complaint Intelligence Dashboard — Vatsala Agarwal ji</div>
     </div>
   </div>
-  <div class="live-badge">
-    <div class="logo-dot" style="width:6px;height:6px;margin:0"></div>
-    LIVE
-  </div>
+  <div class="live-badge"><div class="logo-dot" style="width:6px;height:6px;margin:0"></div>LIVE</div>
 </header>
-
 <div class="main">
-  <!-- SIDEBAR -->
   <div class="sidebar">
-
-    <!-- STATS -->
     <div class="sidebar-section">
       <div class="section-label">Overview</div>
       <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-number" id="total-count">0</div>
-          <div class="stat-label">Total Complaints</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-number" id="ward-count">0</div>
-          <div class="stat-label">Wards Affected</div>
-        </div>
-        <div class="stat-card urgent">
-          <div class="stat-number" id="urgent-count">0</div>
-          <div class="stat-label">🚨 Urgent</div>
-        </div>
-        <div class="stat-card priority">
-          <div class="stat-number" id="priority-count">0</div>
-          <div class="stat-label">⚠ Priority</div>
-        </div>
+        <div class="stat-card"><div class="stat-number" id="total-count">0</div><div class="stat-label">Total Complaints</div></div>
+        <div class="stat-card"><div class="stat-number" id="ward-count">0</div><div class="stat-label">Wards Affected</div></div>
+        <div class="stat-card urgent"><div class="stat-number" id="urgent-count">0</div><div class="stat-label">🚨 Urgent</div></div>
+        <div class="stat-card priority"><div class="stat-number" id="priority-count">0</div><div class="stat-label">⚠ Priority</div></div>
       </div>
     </div>
-
-    <!-- FILTERS -->
     <div class="sidebar-section">
       <div class="section-label">Filter by Type</div>
       <div class="filter-list" id="filter-list"></div>
     </div>
-
-    <!-- COMPLAINT LIST -->
-    <div class="sidebar-section" style="padding-bottom:8px">
-      <div class="section-label">Recent Complaints</div>
-    </div>
+    <div class="sidebar-section" style="padding-bottom:8px"><div class="section-label">Recent Complaints</div></div>
     <div class="complaint-list" id="complaint-list"></div>
-
   </div>
-
-  <!-- MAP -->
   <div id="map"></div>
 </div>
-
 <script>
-// ─── CONFIG ──────────────────────────────────────────────────────────────────
-// PASTE YOUR GOOGLE SHEETS CSV URL HERE
-// In Google Sheets: File → Share → Publish to web → CSV → Copy URL
-const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSvBmAD_4xlHEPjhYZ4vphGrmLXOkASsPhU4E1MRV9O8vpjRILdR9kzK9FKpnIobBMJnz6UA1oKrAhk/pub?gid=0&single=true&output=csv';
-
-// ─── SAMPLE DATA (used when no sheet URL is provided) ─────────────────────────
-const SAMPLE_DATA = [
-  { citizen_name:"Ramesh Kumar Gupta", contact_number:"9452238364", mohalla:"Andheri Bagh", location_description:"Gali no. 3 ke paas, pump ke saamne", problem_type:"NAALI", problem_description:"PRIORITY: Naali puri tarah band hai, baarish mein paani ghar mein ghusta hai. Aas paas 15 ghar pareshan hain.", duration:"4 mahine", timestamp:"2026-05-20 10:32:00", ward_number:"1", latitude:"27.374258", longitude:"79.619442" },
-  { citizen_name:"Sunita Devi", contact_number:"8527749354", mohalla:"Badargang", location_description:"Main road se Radha Shyam Mishra ke ghar tak", problem_type:"SADAK", problem_description:"PRIORITY: Poori sadak tooti hui hai. Baarish mein ghutne tak paani bharta hai. Ek bujurg gir ke zakhmi ho chuke hain.", duration:"2 saal", timestamp:"2026-05-20 11:15:00", ward_number:"31", latitude:"27.381245", longitude:"79.598732" },
-  { citizen_name:"Mohammad Shakir", contact_number:"9336366310", mohalla:"Narksa", location_description:"Darshan Singh ke ghar se Jogi Srivastav ke ghar tak", problem_type:"GANDAGI", problem_description:"Kachra gaadi 3 hafte se nahi aayi. Gali ke kone mein kachra ka dher lag gaya hai. Bacchon ke liye bimari ka khatra hai.", duration:"3 hafte", timestamp:"2026-05-21 09:45:00", ward_number:"7", latitude:"27.368912", longitude:"79.612543" },
-  { citizen_name:"Kavita Sharma", contact_number:"9695106948", mohalla:"Azad Nagar", location_description:"Ward 24 mein Bibigang ke paas, school ke saamne wali gali", problem_type:"STREET_LIGHT", problem_description:"Poori gali mein 4 mahine se andhera hai. 3 khambon ki light kharab hai. Raat ko mahilaon ko nikalna mushkil hai. Ek chori ki ghatna bhi ho chuki hai.", duration:"4 mahine", timestamp:"2026-05-21 14:22:00", ward_number:"24", latitude:"27.371823", longitude:"79.605621" },
-  { citizen_name:"Ashok Kumar Verma", contact_number:"9415172861", mohalla:"Naulakha", location_description:"Sunari Lane, paani ki tanki ke paas", problem_type:"PAANI", problem_description:"PRIORITY: 6 din se paani bilkul nahi aa raha. Tanker bhi nahi aa raha. 20 parivar pareshan hain. Ek bujurg bimar hain jinhe saaf paani ki zaroorat hai.", duration:"6 din", timestamp:"2026-05-21 16:08:00", ward_number:"20", latitude:"27.376543", longitude:"79.608934" },
-  { citizen_name:"Rajesh Singh Katiyar", contact_number:"8005302994", mohalla:"Bholepur Dakshin", location_description:"JNV Road ke paas, Nekpur kalan mein", problem_type:"NAALI", problem_description:"URGENT EMERGENCY: Naali tooti hui hai aur sewage seedha gali mein bah raha hai. Bacche usi mein khel rahe hain. Bimari failne ka serious khatra hai.", duration:"15 din", timestamp:"2026-05-22 08:30:00", ward_number:"4", latitude:"27.362187", longitude:"79.621543" },
-  { citizen_name:"Meera Devi Mishra", contact_number:"9794473957", mohalla:"Satanpur", location_description:"Shobhit ke ghar se Sawesh Saksena ke ghar tak", problem_type:"SADAK", problem_description:"Sadak mein bahut bade gaddhe hain. Ek motorcycle accident ho chuka hai. Baarish mein paani bhar jaata hai aur nikalna impossible ho jaata hai.", duration:"8 mahine", timestamp:"2026-05-22 10:15:00", ward_number:"21", latitude:"27.379432", longitude:"79.601876" },
-  { citizen_name:"Abdul Hamid Khan", contact_number:"9336339296", mohalla:"Hathi Khana", location_description:"Ward 14, Laxman Nagar, main chowk ke paas", problem_type:"GANDAGI", problem_description:"Kachra gaadi hafte mein sirf ek baar aati hai. Gali ke chowk par kachra jama rehta hai. Mosquito bahut hain, dengue ka dar hai.", duration:"2 mahine", timestamp:"2026-05-22 11:45:00", ward_number:"14", latitude:"27.373651", longitude:"79.615234" },
-  { citizen_name:"Priya Rani Gupta", contact_number:"9838508416", mohalla:"Raqabganj Khurd", location_description:"Bibiganj Meharwan ke paas, Ward 38", problem_type:"CERTIFICATE", problem_description:"6 mahine se janam praman patra ke liye office ke chakkar laga rahi hoon. Har baar alag bahana milta hai. Bachche ke school admission mein problem ho rahi hai.", duration:"6 mahine", timestamp:"2026-05-22 14:30:00", ward_number:"38", latitude:"27.384521", longitude:"79.594321" },
-  { citizen_name:"Suresh Chandra Yadav", contact_number:"9506568305", mohalla:"Anguri Bagh", location_description:"Chhawani area, Ward 7, purani gali ke paas", problem_type:"PAANI", problem_description:"Paani sirf 30 minute aata hai subah, pressure bahut kam hai. Tanker mangwana padta hai jo 500 rupaye leta hai. 40 ghar pareshan hain.", duration:"3 mahine", timestamp:"2026-05-22 16:20:00", ward_number:"7", latitude:"27.367234", longitude:"79.614567" }
+const SHEET_CSV_URL='https://docs.google.com/spreadsheets/d/e/2PACX-1vSvBmAD_4xlHEPjhYZ4vphGrmLXOkASsPhU4E1MRV9O8vpjRILdR9kzK9FKpnIobBMJnz6UA1oKrAhk/pub?gid=0&single=true&output=csv';
+const SAMPLE_DATA=[
+  {citizen_name:"Ramesh Kumar Gupta",contact_number:"9452238364",mohalla:"Andheri Bagh",location_description:"Gali no. 3 ke paas, pump ke saamne",problem_type:"NAALI",problem_description:"PRIORITY: Naali puri tarah band hai, baarish mein paani ghar mein ghusta hai.",duration:"4 mahine",timestamp:"2026-05-20 10:32:00",ward_number:"1",latitude:"27.374258",longitude:"79.619442"},
+  {citizen_name:"Sunita Devi",contact_number:"8527749354",mohalla:"Badargang",location_description:"Main road se Radha Shyam ke ghar tak",problem_type:"SADAK",problem_description:"PRIORITY: Poori sadak tooti hui hai. Baarish mein ghutne tak paani bharta hai.",duration:"2 saal",timestamp:"2026-05-20 11:15:00",ward_number:"31",latitude:"27.381245",longitude:"79.598732"},
+  {citizen_name:"Mohammad Shakir",contact_number:"9336366310",mohalla:"Narksa",location_description:"Darshan Singh ke ghar se Jogi ke ghar tak",problem_type:"GANDAGI",problem_description:"Kachra gaadi 3 hafte se nahi aayi. Bacchon ke liye bimari ka khatra.",duration:"3 hafte",timestamp:"2026-05-21 09:45:00",ward_number:"7",latitude:"27.368912",longitude:"79.612543"},
+  {citizen_name:"Kavita Sharma",contact_number:"9695106948",mohalla:"Azad Nagar",location_description:"School ke saamne wali gali",problem_type:"STREET_LIGHT",problem_description:"Poori gali mein 4 mahine se andhera hai. Ek chori ki ghatna bhi ho chuki hai.",duration:"4 mahine",timestamp:"2026-05-21 14:22:00",ward_number:"24",latitude:"27.371823",longitude:"79.605621"},
+  {citizen_name:"Ashok Kumar Verma",contact_number:"9415172861",mohalla:"Naulakha",location_description:"Sunari Lane, paani ki tanki ke paas",problem_type:"PAANI",problem_description:"PRIORITY: 6 din se paani bilkul nahi aa raha. 20 parivar pareshan hain.",duration:"6 din",timestamp:"2026-05-21 16:08:00",ward_number:"20",latitude:"27.376543",longitude:"79.608934"},
+  {citizen_name:"Rajesh Singh Katiyar",contact_number:"8005302994",mohalla:"Bholepur Dakshin",location_description:"JNV Road ke paas",problem_type:"NAALI",problem_description:"URGENT EMERGENCY: Sewage seedha gali mein bah raha hai. Bacche usi mein khel rahe hain.",duration:"15 din",timestamp:"2026-05-22 08:30:00",ward_number:"4",latitude:"27.362187",longitude:"79.621543"},
+  {citizen_name:"Meera Devi Mishra",contact_number:"9794473957",mohalla:"Satanpur",location_description:"Shobhit ke ghar se Sawesh ke ghar tak",problem_type:"SADAK",problem_description:"Sadak mein bahut bade gaddhe hain. Ek motorcycle accident ho chuka hai.",duration:"8 mahine",timestamp:"2026-05-22 10:15:00",ward_number:"21",latitude:"27.379432",longitude:"79.601876"},
+  {citizen_name:"Abdul Hamid Khan",contact_number:"9336339296",mohalla:"Hathi Khana",location_description:"Main chowk ke paas",problem_type:"GANDAGI",problem_description:"Kachra gaadi hafte mein sirf ek baar aati hai. Dengue ka dar hai.",duration:"2 mahine",timestamp:"2026-05-22 11:45:00",ward_number:"14",latitude:"27.373651",longitude:"79.615234"},
+  {citizen_name:"Priya Rani Gupta",contact_number:"9838508416",mohalla:"Raqabganj Khurd",location_description:"Bibiganj Meharwan ke paas",problem_type:"CERTIFICATE",problem_description:"6 mahine se janam praman patra ke liye office ke chakkar. Bachche ke school admission mein problem.",duration:"6 mahine",timestamp:"2026-05-22 14:30:00",ward_number:"38",latitude:"27.384521",longitude:"79.594321"},
+  {citizen_name:"Suresh Chandra Yadav",contact_number:"9506568305",mohalla:"Anguri Bagh",location_description:"Chhawani area",problem_type:"PAANI",problem_description:"Paani sirf 30 minute aata hai. Tanker 500 rupaye leta hai.",duration:"3 mahine",timestamp:"2026-05-22 16:20:00",ward_number:"7",latitude:"27.367234",longitude:"79.614567"},
+  {citizen_name:"Vijay Prakash Tiwari",contact_number:"9415251141",mohalla:"Siktarbaag",location_description:"Ram Rastogi ke ghar ke paas",problem_type:"SADAK",problem_description:"URGENT EMERGENCY: Sadak ke neeche naali ki chhat toot gayi. Bachcha gir gaya tha. Abhi bhi khula hua hai.",duration:"2 din",timestamp:"2026-05-23 04:15:00",ward_number:"31",latitude:"27.380112",longitude:"79.597834"}
 ];
-
-// ─── TYPE CONFIG ──────────────────────────────────────────────────────────────
-const TYPE_CONFIG = {
-  'NAALI':        { color: '#60a5fa', emoji: '🌊', label: 'Naali / Drain' },
-  'SADAK':        { color: '#f97316', emoji: '🛣️', label: 'Sadak / Road' },
-  'GANDAGI':      { color: '#a78bfa', emoji: '🗑️', label: 'Gandagi / Kachra' },
-  'PAANI':        { color: '#22d3ee', emoji: '💧', label: 'Paani / Water' },
-  'STREET_LIGHT': { color: '#fbbf24', emoji: '💡', label: 'Street Light' },
-  'CERTIFICATE':  { color: '#f472b6', emoji: '📄', label: 'Certificate' },
-  'OTHER':        { color: '#94a3b8', emoji: '📋', label: 'Other' }
-};
-
-// ─── STATE ────────────────────────────────────────────────────────────────────
-let allData = [];
-let markers = [];
-let activeFilter = 'ALL';
-let map;
-
-// ─── MAP INIT ─────────────────────────────────────────────────────────────────
-function initMap() {
-  map = L.map('map', {
-    center: [27.374, 79.607],
-    zoom: 13,
-    zoomControl: true
-  });
-
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© OpenStreetMap',
-    maxZoom: 19
-  }).addTo(map);
-}
-
-// ─── CREATE MARKER ICON ───────────────────────────────────────────────────────
-function createMarkerIcon(type, description) {
-  const config = TYPE_CONFIG[type] || TYPE_CONFIG['OTHER'];
-  const isUrgent = description && description.includes('URGENT EMERGENCY');
-  const isPriority = description && description.includes('PRIORITY:');
-
-  const borderColor = isUrgent ? '#ef4444' : isPriority ? '#fb923c' : config.color;
-  const size = isUrgent ? 36 : isPriority ? 32 : 28;
-
-  const html = `
-    <div style="
-      width:${size}px;height:${size}px;
-      background:${config.color}22;
-      border:2px solid ${borderColor};
-      border-radius:50% 50% 50% 0;
-      transform:rotate(-45deg);
-      display:flex;align-items:center;justify-content:center;
-      box-shadow:0 2px 12px ${config.color}44;
-      ${isUrgent ? 'animation:urgentPulse 1s infinite;' : ''}
-    ">
-      <span style="transform:rotate(45deg);font-size:${size * 0.45}px;line-height:1">
-        ${config.emoji}
-      </span>
-    </div>`;
-
-  return L.divIcon({
-    html,
-    className: '',
-    iconSize: [size, size],
-    iconAnchor: [size / 2, size],
-    popupAnchor: [0, -size]
-  });
-}
-
-// ─── BUILD POPUP ──────────────────────────────────────────────────────────────
-function buildPopup(d) {
-  const config = TYPE_CONFIG[d.problem_type] || TYPE_CONFIG['OTHER'];
-  const isUrgent = d.problem_description && d.problem_description.includes('URGENT EMERGENCY');
-  const isPriority = d.problem_description && d.problem_description.includes('PRIORITY:');
-
-  let urgencyTag = '';
-  if (isUrgent) urgencyTag = `<div class="urgency-tag urgency-urgent">🚨 URGENT EMERGENCY</div>`;
-  else if (isPriority) urgencyTag = `<div class="urgency-tag urgency-priority">⚠ PRIORITY</div>`;
-
-  const cleanDesc = d.problem_description
-    .replace('URGENT EMERGENCY: ', '')
-    .replace('PRIORITY: ', '');
-
-  const ts = d.timestamp ? new Date(d.timestamp).toLocaleDateString('hi-IN', {
-    day: 'numeric', month: 'short', year: 'numeric'
-  }) : 'Unknown';
-
-  return `
-    <div>
-      <div class="popup-header">
-        <div class="popup-type-dot" style="background:${config.color}"></div>
-        <div class="popup-name">${d.citizen_name || 'Anonymous'}</div>
-      </div>
-      <div class="popup-body">
-        ${urgencyTag}
-        <div class="popup-row">
-          <div class="popup-label">MOHALLA</div>
-          <div class="popup-value">${d.mohalla || '—'}, Ward ${d.ward_number || '?'}</div>
-        </div>
-        <div class="popup-row">
-          <div class="popup-label">SAMASYA</div>
-          <div class="popup-value" style="color:${config.color}">${config.label}</div>
-        </div>
-        <div class="popup-row">
-          <div class="popup-label">DETAIL</div>
-          <div class="popup-value" style="font-size:11px;line-height:1.6">${cleanDesc}</div>
-        </div>
-        <div class="popup-row">
-          <div class="popup-label">DURATION</div>
-          <div class="popup-value">${d.duration || '—'}</div>
-        </div>
-        <div class="popup-row">
-          <div class="popup-label">DATE</div>
-          <div class="popup-value">${ts}</div>
-        </div>
-        <div class="popup-row">
-          <div class="popup-label">LOCATION</div>
-          <div class="popup-value" style="font-size:11px">${d.location_description || '—'}</div>
-        </div>
-      </div>
-    </div>`;
-}
-
-// ─── RENDER MARKERS ───────────────────────────────────────────────────────────
-function renderMarkers(data) {
-  markers.forEach(m => map.removeLayer(m));
-  markers = [];
-
-  const filtered = activeFilter === 'ALL'
-    ? data
-    : data.filter(d => d.problem_type === activeFilter);
-
-  filtered.forEach(d => {
-    const lat = parseFloat(d.latitude);
-    const lon = parseFloat(d.longitude);
-    if (isNaN(lat) || isNaN(lon)) return;
-
-    const marker = L.marker([lat, lon], {
-      icon: createMarkerIcon(d.problem_type, d.problem_description)
-    });
-
-    marker.bindPopup(buildPopup(d), {
-      className: 'custom-popup',
-      maxWidth: 300
-    });
-
-    marker.addTo(map);
-    markers.push(marker);
-  });
-}
-
-// ─── RENDER SIDEBAR ───────────────────────────────────────────────────────────
-function renderSidebar(data) {
-  // Stats
-  const urgent = data.filter(d => d.problem_description && d.problem_description.includes('URGENT EMERGENCY')).length;
-  const priority = data.filter(d => d.problem_description && d.problem_description.includes('PRIORITY:')).length;
-  const wards = new Set(data.map(d => d.ward_number)).size;
-
-  document.getElementById('total-count').textContent = data.length;
-  document.getElementById('ward-count').textContent = wards;
-  document.getElementById('urgent-count').textContent = urgent;
-  document.getElementById('priority-count').textContent = priority;
-
-  // Type counts
-  const typeCounts = {};
-  data.forEach(d => {
-    typeCounts[d.problem_type] = (typeCounts[d.problem_type] || 0) + 1;
-  });
-
-  // Filters
-  const filterList = document.getElementById('filter-list');
-  filterList.innerHTML = '';
-
-  const allBtn = document.createElement('button');
-  allBtn.className = `filter-btn ${activeFilter === 'ALL' ? 'active' : ''}`;
-  allBtn.innerHTML = `
-    <div class="filter-dot" style="background:#4ade80"></div>
-    <span>All Types</span>
-    <span class="filter-count">${data.length}</span>`;
-  allBtn.onclick = () => { activeFilter = 'ALL'; renderAll(); };
-  filterList.appendChild(allBtn);
-
-  Object.entries(TYPE_CONFIG).forEach(([type, config]) => {
-    const count = typeCounts[type] || 0;
-    if (count === 0) return;
-    const btn = document.createElement('button');
-    btn.className = `filter-btn ${activeFilter === type ? 'active' : ''}`;
-    btn.innerHTML = `
-      <div class="filter-dot" style="background:${config.color}"></div>
-      <span>${config.label}</span>
-      <span class="filter-count">${count}</span>`;
-    btn.onclick = () => { activeFilter = type; renderAll(); };
-    filterList.appendChild(btn);
-  });
-
-  // Complaint list — sorted by urgency
-  const sorted = [...data].sort((a, b) => {
-    const urgA = a.problem_description && a.problem_description.includes('URGENT') ? 2 :
-                 a.problem_description && a.problem_description.includes('PRIORITY') ? 1 : 0;
-    const urgB = b.problem_description && b.problem_description.includes('URGENT') ? 2 :
-                 b.problem_description && b.problem_description.includes('PRIORITY') ? 1 : 0;
-    return urgB - urgA;
-  });
-
-  const list = document.getElementById('complaint-list');
-  list.innerHTML = '';
-
-  sorted.forEach((d, idx) => {
-    const config = TYPE_CONFIG[d.problem_type] || TYPE_CONFIG['OTHER'];
-    const isUrgent = d.problem_description && d.problem_description.includes('URGENT EMERGENCY');
-    const isPriority = d.problem_description && d.problem_description.includes('PRIORITY:');
-
-    const badgeColor = isUrgent ? '#ef4444' : isPriority ? '#fb923c' : config.color;
-    const badgeText = isUrgent ? 'URGENT' : isPriority ? 'PRIORITY' : d.problem_type.replace('_', ' ');
-
-    const item = document.createElement('div');
-    item.className = 'complaint-item';
-    item.innerHTML = `
-      <div class="complaint-item-header">
-        <div class="complaint-name">${d.citizen_name || 'Anonymous'}</div>
-        <div class="complaint-type-badge" style="background:${badgeColor}22;border:1px solid ${badgeColor};color:${badgeColor}">${badgeText}</div>
-      </div>
-      <div class="complaint-mohalla">${config.emoji} ${d.mohalla || '—'}, Ward ${d.ward_number || '?'}</div>
-      <div class="complaint-meta">
-        <span>${d.duration || '—'}</span>
-      </div>`;
-
-    item.onclick = () => {
-      const lat = parseFloat(d.latitude);
-      const lon = parseFloat(d.longitude);
-      if (!isNaN(lat) && !isNaN(lon)) {
-        map.flyTo([lat, lon], 16, { duration: 1.2 });
-        setTimeout(() => {
-          const marker = markers.find(m => {
-            const ll = m.getLatLng();
-            return Math.abs(ll.lat - lat) < 0.0001 && Math.abs(ll.lng - lon) < 0.0001;
-          });
-          if (marker) marker.openPopup();
-        }, 1300);
-      }
-    };
-    list.appendChild(item);
-  });
-}
-
-function renderAll() {
-  renderMarkers(allData);
-  renderSidebar(allData);
-}
-
-// ─── LOAD DATA ────────────────────────────────────────────────────────────────
-async function loadData() {
-  if (SHEET_CSV_URL && SHEET_CSV_URL !== 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSvBmAD_4xlHEPjhYZ4vphGrmLXOkASsPhU4E1MRV9O8vpjRILdR9kzK9FKpnIobBMJnz6UA1oKrAhk/pub?gid=0&single=true&output=csv') {
-    try {
-      const res = await fetch(SHEET_CSV_URL);
-      const text = await res.text();
-      allData = parseCSV(text);
-    } catch (e) {
-      console.log('Using sample data:', e);
-      allData = SAMPLE_DATA;
-    }
-  } else {
-    allData = SAMPLE_DATA;
-  }
-  renderAll();
-}
-
-function parseCSV(text) {
-  const lines = text.trim().split('\n');
-  const headers = lines[0].split(',').map(h => h.trim().replace(/"/g,''));
-  return lines.slice(1).map(line => {
-    const vals = line.match(/(".*?"|[^,]+)(?=,|$)/g) || [];
-    const obj = {};
-    headers.forEach((h, i) => {
-      obj[h] = (vals[i] || '').replace(/^"|"$/g, '').trim();
-    });
-    return obj;
-  }).filter(d => d.latitude && d.longitude);
-}
-
-// ─── INIT ─────────────────────────────────────────────────────────────────────
-initMap();
-loadData();
-
-// Auto-refresh every 5 minutes
-setInterval(loadData, 5 * 60 * 1000);
-
-// CSS for urgent pulse
-const style = document.createElement('style');
-style.textContent = `
-  @keyframes urgentPulse {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.6); }
-    50% { box-shadow: 0 0 0 8px rgba(239,68,68,0); }
-  }`;
-document.head.appendChild(style);
+const TYPE_CONFIG={'NAALI':{color:'#60a5fa',emoji:'🌊',label:'Naali / Drain'},'SADAK':{color:'#f97316',emoji:'🛣️',label:'Sadak / Road'},'GANDAGI':{color:'#a78bfa',emoji:'🗑️',label:'Gandagi / Kachra'},'PAANI':{color:'#22d3ee',emoji:'💧',label:'Paani / Water'},'STREET_LIGHT':{color:'#fbbf24',emoji:'💡',label:'Street Light'},'CERTIFICATE':{color:'#f472b6',emoji:'📄',label:'Certificate'},'OTHER':{color:'#94a3b8',emoji:'📋',label:'Other'}};
+let allData=[],markers=[],activeFilter='ALL',map;
+function initMap(){map=L.map('map',{center:[27.374,79.607],zoom:13});L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap',maxZoom:19}).addTo(map)}
+function createMarkerIcon(type,desc){const c=TYPE_CONFIG[type]||TYPE_CONFIG['OTHER'];const isU=desc&&desc.includes('URGENT EMERGENCY');const isP=desc&&desc.includes('PRIORITY:');const bc=isU?'#ef4444':isP?'#fb923c':c.color;const sz=isU?36:isP?32:28;return L.divIcon({html:`<div style="width:${sz}px;height:${sz}px;background:${c.color}22;border:2px solid ${bc};border-radius:50% 50% 50% 0;transform:rotate(-45deg);display:flex;align-items:center;justify-content:center;box-shadow:0 2px 12px ${c.color}44;${isU?'animation:urgentPulse 1s infinite;':''}"><span style="transform:rotate(45deg);font-size:${sz*.45}px">${c.emoji}</span></div>`,className:'',iconSize:[sz,sz],iconAnchor:[sz/2,sz],popupAnchor:[0,-sz]})}
+function buildPopup(d){const c=TYPE_CONFIG[d.problem_type]||TYPE_CONFIG['OTHER'];const isU=d.problem_description&&d.problem_description.includes('URGENT EMERGENCY');const isP=d.problem_description&&d.problem_description.includes('PRIORITY:');const tag=isU?`<div class="urgency-tag urgency-urgent">🚨 URGENT EMERGENCY</div>`:isP?`<div class="urgency-tag urgency-priority">⚠ PRIORITY</div>`:'';const desc=(d.problem_description||'').replace('URGENT EMERGENCY: ','').replace('PRIORITY: ','');const ts=d.timestamp?new Date(d.timestamp).toLocaleDateString('hi-IN',{day:'numeric',month:'short',year:'numeric'}):'Unknown';return`<div><div class="popup-header"><div class="popup-type-dot" style="background:${c.color}"></div><div class="popup-name">${d.citizen_name||'Anonymous'}</div></div><div class="popup-body">${tag}<div class="popup-row"><div class="popup-label">MOHALLA</div><div class="popup-value">${d.mohalla||'—'}, Ward ${d.ward_number||'?'}</div></div><div class="popup-row"><div class="popup-label">SAMASYA</div><div class="popup-value" style="color:${c.color}">${c.label}</div></div><div class="popup-row"><div class="popup-label">DETAIL</div><div class="popup-value" style="font-size:11px;line-height:1.6">${desc}</div></div><div class="popup-row"><div class="popup-label">DURATION</div><div class="popup-value">${d.duration||'—'}</div></div><div class="popup-row"><div class="popup-label">DATE</div><div class="popup-value">${ts}</div></div><div class="popup-row"><div class="popup-label">LOCATION</div><div class="popup-value" style="font-size:11px">${d.location_description||'—'}</div></div></div></div>`}
+function renderMarkers(data){markers.forEach(m=>map.removeLayer(m));markers=[];(activeFilter==='ALL'?data:data.filter(d=>d.problem_type===activeFilter)).forEach(d=>{const lat=parseFloat(d.latitude),lon=parseFloat(d.longitude);if(isNaN(lat)||isNaN(lon))return;const m=L.marker([lat,lon],{icon:createMarkerIcon(d.problem_type,d.problem_description)});m.bindPopup(buildPopup(d),{className:'custom-popup',maxWidth:300});m.addTo(map);markers.push(m)})}
+function renderSidebar(data){const urgent=data.filter(d=>d.problem_description&&d.problem_description.includes('URGENT EMERGENCY')).length;const priority=data.filter(d=>d.problem_description&&d.problem_description.includes('PRIORITY:')).length;document.getElementById('total-count').textContent=data.length;document.getElementById('ward-count').textContent=new Set(data.map(d=>d.ward_number)).size;document.getElementById('urgent-count').textContent=urgent;document.getElementById('priority-count').textContent=priority;const tc={};data.forEach(d=>{tc[d.problem_type]=(tc[d.problem_type]||0)+1});const fl=document.getElementById('filter-list');fl.innerHTML='';const ab=document.createElement('button');ab.className='filter-btn'+(activeFilter==='ALL'?' active':'');ab.innerHTML=`<div class="filter-dot" style="background:#4ade80"></div><span>All Types</span><span class="filter-count">${data.length}</span>`;ab.onclick=()=>{activeFilter='ALL';renderAll()};fl.appendChild(ab);Object.entries(TYPE_CONFIG).forEach(([type,c])=>{const cnt=tc[type]||0;if(!cnt)return;const btn=document.createElement('button');btn.className='filter-btn'+(activeFilter===type?' active':'');btn.innerHTML=`<div class="filter-dot" style="background:${c.color}"></div><span>${c.label}</span><span class="filter-count">${cnt}</span>`;btn.onclick=()=>{activeFilter=type;renderAll()};fl.appendChild(btn)});const sorted=[...data].sort((a,b)=>{const ua=a.problem_description&&a.problem_description.includes('URGENT')?2:a.problem_description&&a.problem_description.includes('PRIORITY')?1:0;const ub=b.problem_description&&b.problem_description.includes('URGENT')?2:b.problem_description&&b.problem_description.includes('PRIORITY')?1:0;return ub-ua});const list=document.getElementById('complaint-list');list.innerHTML='';sorted.forEach(d=>{const c=TYPE_CONFIG[d.problem_type]||TYPE_CONFIG['OTHER'];const isU=d.problem_description&&d.problem_description.includes('URGENT EMERGENCY');const isP=d.problem_description&&d.problem_description.includes('PRIORITY:');const bc=isU?'#ef4444':isP?'#fb923c':c.color;const bt=isU?'URGENT':isP?'PRIORITY':d.problem_type.replace('_',' ');const item=document.createElement('div');item.className='complaint-item';item.innerHTML=`<div class="complaint-item-header"><div class="complaint-name">${d.citizen_name||'Anonymous'}</div><div class="complaint-type-badge" style="background:${bc}22;border:1px solid ${bc};color:${bc}">${bt}</div></div><div class="complaint-mohalla">${c.emoji} ${d.mohalla||'—'}, Ward ${d.ward_number||'?'}</div><div class="complaint-meta">${d.duration||'—'}</div>`;item.onclick=()=>{const lat=parseFloat(d.latitude),lon=parseFloat(d.longitude);if(!isNaN(lat)&&!isNaN(lon)){map.flyTo([lat,lon],16,{duration:1.2});setTimeout(()=>{const mk=markers.find(m=>{const ll=m.getLatLng();return Math.abs(ll.lat-lat)<.0001&&Math.abs(ll.lng-lon)<.0001});if(mk)mk.openPopup()},1300)}};list.appendChild(item)})}
+function renderAll(){renderMarkers(allData);renderSidebar(allData)}
+async function loadData(){try{const res=await fetch(SHEET_CSV_URL);const text=await res.text();const parsed=parseCSV(text);allData=parsed.length>0?parsed:SAMPLE_DATA}catch(e){console.log('Using sample data:',e);allData=SAMPLE_DATA}renderAll()}
+function parseCSV(text){const lines=text.trim().split('\n');const headers=lines[0].split(',').map(h=>h.trim().replace(/"/g,''));return lines.slice(1).map(line=>{const vals=line.match(/(".*?"|[^,]+)(?=,|$)/g)||[];const obj={};headers.forEach((h,i)=>{obj[h]=(vals[i]||'').replace(/^"|"$/g,'').trim()});return obj}).filter(d=>d.latitude&&d.longitude)}
+initMap();loadData();setInterval(loadData,5*60*1000);
 </script>
 </body>
 </html>
